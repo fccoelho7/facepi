@@ -1,11 +1,19 @@
 const puppeteer = require("puppeteer");
 
-const { cookiesRepository } = require('./cookiesRepository');
+const { cookiesRepository } = require("./cookiesRepository");
 
-const remove = async (page, memberName) => {
-  await page.type('input[placeholder="Encontre um membro"]', memberName);
+const removeOnce = async (page, memberName) => {
+  const fieldSelector = 'input[placeholder="Encontre um membro"]';
 
-  await page.waitFor(5000);
+  // Clear some previously value
+  await page.click(fieldSelector, { clickCount: 3 });
+  await page.keyboard.press("Backspace");
+
+  await page.waitFor(1000);
+
+  await page.type(fieldSelector, memberName);
+
+  await page.waitFor(3000);
 
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
@@ -22,6 +30,14 @@ const remove = async (page, memberName) => {
   await page.waitFor(2000);
 
   await page.click("button.layerConfirm");
+
+  await page.waitFor(2000);
+};
+
+const remove = async (page, list) => {
+  for (const name of list) {
+    await removeOnce(page, name);
+  }
 };
 
 const login = async (page, user, password) => {
@@ -36,10 +52,11 @@ const login = async (page, user, password) => {
   cookiesRepository.save(cookies);
 };
 
-const add = async (page, memberName) => {
+const add = async (page, list) => {
+  const fieldSelector = "div.uiStickyPlaceholderInput input";
   await page.click('div[data-testid="group_more_actions"] > a');
 
-  await page.waitFor(2000);
+  await page.waitFor(500);
 
   await page.keyboard.press("Space");
   await page.keyboard.press("Space");
@@ -47,22 +64,27 @@ const add = async (page, memberName) => {
 
   await page.waitFor(2000);
 
-  await page.type("div.uiStickyPlaceholderInput > input", memberName);
+  await page.focus(fieldSelector);
 
-  await page.waitFor(3000);
+  for (const name of list) {
+    await page.keyboard.type(name);
+    await page.waitFor(500);
+    await page.keyboard.press("Enter");
+    await page.focus(fieldSelector);
+    await page.waitFor(500);
+  }
 
-  await page.keyboard.press("Enter");
   await page.keyboard.press("Escape");
   await page.keyboard.press("Enter");
 
-  await page.waitFor(3000);
+  await page.waitFor(2000);
 
   await page.keyboard.press("Enter");
 };
 
-const goToGroupMembers = (page, groupId) => {
+const goToGroupMembers = async (page, groupId) => {
   await page.goto(`https://www.facebook.com/groups/${groupId}/members/`);
-}
+};
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -71,7 +93,6 @@ const goToGroupMembers = (page, groupId) => {
   });
   const context = browser.defaultBrowserContext();
   const page = await browser.newPage();
-  const memberName = process.env.MEMBER_NAME;
 
   const cookies = await cookiesRepository.get();
   await page.setCookie(...cookies);
@@ -80,14 +101,14 @@ const goToGroupMembers = (page, groupId) => {
     "notifications"
   ]);
 
-  await goToGroupMembers(page, 1202948933104577)
+  await goToGroupMembers(page, 1202948933104577);
 
-  await login(page, context, "fccoelho7", "Fab***0701");
+  // await login(page, context, "fccoelho7", "Fab***0701");
 
-  await page.waitFor(5000)
+  // await page.waitFor(5000);
 
-  await add(page, memberName);
-  await remove(page, memberName);
+  // await add(page, ["dev1@gmail.com", "dev2@gmail.com", "dev3@gmail.com"]);
+  // await remove(page, ["Accácio Jasson Franklin", "Janynne Gomes"]);
 
   browser.close();
 })();
