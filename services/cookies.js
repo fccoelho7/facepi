@@ -21,4 +21,4 @@ const cookiesRepository = {
   }
 };
 
-module.exports = { cookiesRepository };
+module.exports = cookiesRepository;
