@@ -1,5 +1,9 @@
-const add = async (page, list) => {
+const add = async (page, id, members) => {
   const fieldSelector = "div.uiStickyPlaceholderInput input";
+
+  await page.goto(`https://www.facebook.com/groups/${id}/members/`, {
+    waitUntil: "networkidle2"
+  });
 
   await page.click('div[data-testid="group_more_actions"] > a');
 
@@ -13,7 +17,7 @@ const add = async (page, list) => {
 
   await page.focus(fieldSelector);
 
-  for (const name of list) {
+  for (const name of members) {
     await page.keyboard.type(name);
     await page.waitFor(1000);
     await page.keyboard.press("Enter");

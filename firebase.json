@@ -1,0 +1,24 @@
+{
+  "hosting": {
+    "public": "public",
+    "cleanUrls": true,
+    "rewrites": [
+      {
+        "source": "/login",
+        "function": "login"
+      },
+      {
+        "source": "/add",
+        "function": "add"
+      },
+      {
+        "source": "/remove",
+        "function": "remove"
+      }
+    ],
+    "ignore": ["firebase.json", "**/.md", "**/node_modules/**"]
+  },
+  "functions": {
+    "source": "functions"
+  }
+}

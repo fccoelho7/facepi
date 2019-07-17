@@ -15,8 +15,7 @@ const removeOnce = async (page, memberName) => {
   const foundMembers = await page.$$(".fbProfileBrowserListItem");
 
   if (foundMembers.length === 0) {
-    console.error(`Member ${memberName} not found!`);
-    return;
+    throw Error(`Member ${memberName} not found!`);
   }
 
   await page.keyboard.press("Tab");
@@ -38,7 +37,11 @@ const removeOnce = async (page, memberName) => {
   await page.waitFor(2000);
 };
 
-const remove = async (page, list) => {
+const remove = async (page, id, list) => {
+  await page.goto(`https://www.facebook.com/groups/${id}/members/`, {
+    waitUntil: "networkidle2"
+  });
+
   for (const name of list) {
     await removeOnce(page, name);
   }
