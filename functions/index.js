@@ -83,4 +83,5 @@ app.post("/:groupId/remove", async (req, res) => {
   await browser.close();
 });
 
-exports.app = functions.runWith(opts).https.onRequest(app);
+const opts = { memory: "2GB", timeoutSeconds: 60 };
+exports.groups = functions.runWith(opts).https.onRequest(app);
