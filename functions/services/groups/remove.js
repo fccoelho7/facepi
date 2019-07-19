@@ -1,4 +1,6 @@
-const removeOnce = async (page, memberName) => {
+const Status = require("./status");
+
+const removeOnce = async (page, member) => {
   const fieldSelector = 'input[placeholder="Encontre um membro"]';
 
   // Clear some previously value
@@ -7,15 +9,14 @@ const removeOnce = async (page, memberName) => {
 
   await page.waitFor(2000);
 
-  await page.type(fieldSelector, memberName);
+  await page.type(fieldSelector, member.name);
 
   await page.waitFor(3000);
 
-  // Check if there's any match
-  const foundMembers = await page.$$(".fbProfileBrowserListItem");
+  const foundMember = await page.$(`#search_${member.id}`);
 
-  if (foundMembers.length === 0) {
-    throw Error(`Member ${memberName} not found!`);
+  if (!foundMember) {
+    return { ...member, status: Status.MemberNotFound };
   }
 
   await page.keyboard.press("Tab");
@@ -35,16 +36,23 @@ const removeOnce = async (page, memberName) => {
   await page.click("button.layerConfirm");
 
   await page.waitFor(2000);
+
+  return { ...member, status: Status.MemberRemoved };
 };
 
-const remove = async (page, id, list) => {
+const remove = async (page, id, memberList) => {
   await page.goto(`https://www.facebook.com/groups/${id}/members/`, {
     waitUntil: "networkidle2"
   });
 
-  for (const name of list) {
-    await removeOnce(page, name);
+  let response = [];
+
+  for (const member of memberList) {
+    const result = await removeOnce(page, member);
+    response = [...response, result];
   }
+
+  return response;
 };
 
 module.exports = { remove, removeOnce };

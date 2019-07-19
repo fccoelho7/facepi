@@ -21,7 +21,8 @@ const getBrowserPage = async (browser, cookies) => {
 
 app.all("*", async (req, res, next) => {
   const browser = await puppeteer.launch({
-    args: ["--no-sandbox"]
+    args: ["--no-sandbox"],
+    headless: false
   });
 
   const context = browser.defaultBrowserContext();
@@ -74,8 +75,9 @@ app.post("/:groupId/remove", async (req, res) => {
 
   try {
     const page = await getBrowserPage(browser, cookies);
-    await remove(page, groupId, members);
-    res.send({ message: "Members removed!" });
+    const data = await remove(page, groupId, members);
+
+    res.send({ data });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
