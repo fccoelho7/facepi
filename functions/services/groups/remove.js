@@ -1,5 +1,6 @@
 const Status = require("./status");
 const { findMember } = require("./shared/findMember");
+const { goToGroupPage } = require("./shared/goToGroupPage");
 
 const removeOnce = async (page, member) => {
   const hasMember = await findMember(page, member);
@@ -30,9 +31,7 @@ const removeOnce = async (page, member) => {
 };
 
 const remove = async (page, id, memberList) => {
-  await page.goto(`https://www.facebook.com/groups/${id}/members/`, {
-    waitUntil: "networkidle2"
-  });
+  await goToGroupPage(page, id, "members");
 
   let response = [];
 

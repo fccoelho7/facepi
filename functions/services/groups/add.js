@@ -1,4 +1,5 @@
 const Status = require("./status");
+const { goToGroupPage } = require("./shared/goToGroupPage");
 
 const getMemberIdByUrl = url => {
   const regex = new RegExp("[\\?&]id=([^&#]*)");
@@ -18,16 +19,10 @@ const getMemberId = async (page, name) => {
   return getMemberIdByUrl(url);
 };
 
-const goToPage = async (page, id, suffix = "") => {
-  return await page.goto(`https://www.facebook.com/groups/${id}/${suffix}`, {
-    waitUntil: "networkidle2"
-  });
-};
-
 const add = async (page, id, members) => {
   const fieldSelector = "div.uiStickyPlaceholderInput input";
 
-  await goToPage(page, id, "members");
+  await goToGroupPage(page, id, "members");
 
   await page.click('div[data-testid="group_more_actions"] > a');
 
@@ -54,7 +49,7 @@ const add = async (page, id, members) => {
 
   await page.waitFor(1000);
 
-  await goToPage(page, id, "invited");
+  await goToGroupPage(page, id, "invited");
 
   let response = [];
 
