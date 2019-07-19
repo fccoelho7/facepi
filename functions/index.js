@@ -21,8 +21,7 @@ const getBrowserPage = async (browser, cookies) => {
 
 app.all("*", async (req, res, next) => {
   const browser = await puppeteer.launch({
-    args: ["--no-sandbox"],
-    headless: process.env.NODE_ENV !== "development"
+    args: ["--no-sandbox"]
   });
 
   const context = browser.defaultBrowserContext();
@@ -58,8 +57,9 @@ app.post("/:groupId/add", async (req, res) => {
 
   try {
     const page = await getBrowserPage(browser, cookies);
-    await add(page, groupId, members);
-    res.send({ message: "Members added!" });
+    const data = await add(page, groupId, members);
+
+    res.send({ data });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
@@ -83,5 +83,7 @@ app.post("/:groupId/remove", async (req, res) => {
   await browser.close();
 });
 
-const opts = { memory: "2GB", timeoutSeconds: 60 };
-exports.groups = functions.runWith(opts).https.onRequest(app);
+// const opts = { memory: "2GB", timeoutSeconds: 60 };
+// exports.groups = functions.runWith(opts).https.onRequest(app);
+
+app.listen(4000);
