@@ -5,6 +5,7 @@ const functions = require("firebase-functions");
 const { login } = require("./services/groups/login");
 const { add } = require("./services/groups/add");
 const { remove } = require("./services/groups/remove");
+const { retrieve } = require("./services/groups/retrieve");
 
 const app = express();
 app.use(express.json());
@@ -22,7 +23,7 @@ const getBrowserPage = async (browser, cookies) => {
 app.all("*", async (req, res, next) => {
   const browser = await puppeteer.launch({
     args: ["--no-sandbox"],
-    headless: false
+    headless: true
   });
 
   const context = browser.defaultBrowserContext();
@@ -51,14 +52,14 @@ app.post("/login", async (req, res) => {
   await browser.close();
 });
 
-app.post("/:groupId/add", async (req, res) => {
+app.post("/:id/members/add", async (req, res) => {
   const browser = res.locals.browser;
-  const groupId = req.params.groupId;
+  const id = req.params.id;
   const { members, cookies } = req.body;
 
   try {
     const page = await getBrowserPage(browser, cookies);
-    const data = await add(page, groupId, members);
+    const data = await add(page, id, members);
 
     res.send({ data });
   } catch (error) {
@@ -68,14 +69,31 @@ app.post("/:groupId/add", async (req, res) => {
   await browser.close();
 });
 
-app.post("/:groupId/remove", async (req, res) => {
+app.post("/:id/members/remove", async (req, res) => {
   const browser = res.locals.browser;
-  const groupId = req.params.groupId;
+  const id = req.params.id;
   const { members, cookies } = req.body;
 
   try {
     const page = await getBrowserPage(browser, cookies);
-    const data = await remove(page, groupId, members);
+    const data = await remove(page, id, members);
+
+    res.send({ data });
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+
+  await browser.close();
+});
+
+app.post("/:id/members/retrieve", async (req, res) => {
+  const browser = res.locals.browser;
+  const id = req.params.id;
+  const { member, cookies } = req.body;
+
+  try {
+    const page = await getBrowserPage(browser, cookies);
+    const data = await retrieve(page, id, member);
 
     res.send({ data });
   } catch (error) {
