@@ -1,6 +1,8 @@
 const express = require("express");
 const puppeteer = require("puppeteer");
-const functions = require("firebase-functions");
+const logger = require("morgan");
+const errorHandler = require("errorhandler");
+// const functions = require("firebase-functions");
 
 const { login } = require("./services/groups/login");
 const { add } = require("./services/groups/add");
@@ -8,7 +10,9 @@ const { remove } = require("./services/groups/remove");
 const { retrieve } = require("./services/groups/retrieve");
 
 const app = express();
+
 app.use(express.json());
+app.use(logger("common"));
 
 const getBrowserPage = async (browser, cookies) => {
   const page = await browser.newPage();
@@ -106,4 +110,6 @@ app.post("/:id/members/retrieve", async (req, res) => {
 // const opts = { memory: "2GB", timeoutSeconds: 60 };
 // exports.groups = functions.runWith(opts).https.onRequest(app);
 
-app.listen(4000);
+app.use(errorHandler());
+
+app.listen(5001);
