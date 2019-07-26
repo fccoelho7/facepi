@@ -1,23 +1,19 @@
 const Status = require("./status");
 const { goToGroupPage } = require("./shared/goToGroupPage");
 
-const getMemberIdByUrl = url => {
-  const regex = new RegExp("[\\?&]id=([^&#]*)");
-  const results = regex.exec(url);
-
-  return results === null
-    ? ""
-    : decodeURIComponent(results[1].replace(/\+/g, " "));
-};
-
-const getMemberId = async (page, name) => {
-  const url = await page.$eval(
-    `.uiProfileBlockContent a[title="${name}"]`,
-    el => el.getAttribute("data-hovercard")
+const getMemberId = async page =>
+  await page.$eval("[data-referrerid]", el =>
+    el.getAttribute("data-referrerid")
   );
 
-  return getMemberIdByUrl(url);
-};
+const getMemberName = async page =>
+  await page.$eval(
+    '[data-testid="profile_name_in_profile_page"] a',
+    el => el.text
+  );
+
+const getMemberPhoto = async page =>
+  await page.$eval(".photoContainer img", el => el.getAttribute("src"));
 
 const add = async (page, id, members) => {
   const fieldSelector = "div.uiStickyPlaceholderInput input";
@@ -49,22 +45,19 @@ const add = async (page, id, members) => {
 
   await page.waitFor(1000);
 
-  await goToGroupPage(page, id, "invited");
-
   let response = [];
 
   for (const member of members) {
-    const { name, email } = member;
-    let id = null;
-    let status = Status.MemberInvited;
+    const { url, email } = member;
 
-    try {
-      id = await getMemberId(page, name);
-    } catch {
-      status = Status.MemberNotFound;
-    }
+    await page.goto(url, { waitUntil: "networkidle2" });
 
-    response = [...response, { id, name, email, status }];
+    const id = await getMemberId(page);
+    const name = await getMemberName(page);
+    const photo = await getMemberPhoto(page);
+    const status = id ? Status.MemberInvited : Status.MemberNotFound;
+
+    response = [...response, { id, name, email, url, photo, status }];
   }
 
   return response;
