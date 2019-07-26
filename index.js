@@ -2,7 +2,6 @@ const express = require("express");
 const puppeteer = require("puppeteer");
 const logger = require("morgan");
 const errorHandler = require("errorhandler");
-// const functions = require("firebase-functions");
 
 const { login } = require("./services/groups/login");
 const { add } = require("./services/groups/add");
@@ -107,9 +106,6 @@ app.post("/:id/members/retrieve", async (req, res) => {
   await browser.close();
 });
 
-// const opts = { memory: "2GB", timeoutSeconds: 60 };
-// exports.groups = functions.runWith(opts).https.onRequest(app);
-
 app.use(errorHandler());
 
-app.listen(5001);
+app.listen(process.env.PORT || 5001);
