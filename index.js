@@ -1,12 +1,15 @@
 const express = require("express");
 const puppeteer = require("puppeteer");
 const logger = require("morgan");
+const dotenv = require("dotenv");
 const errorHandler = require("errorhandler");
 
 const { login } = require("./services/groups/login");
 const { add } = require("./services/groups/add");
 const { remove } = require("./services/groups/remove");
 const { retrieve } = require("./services/groups/retrieve");
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -36,11 +39,17 @@ app.all("*", async (req, res, next) => {
   ]);
 
   res.locals.browser = browser;
+  res.locals.credentials = process.env.CREDENTIALS;
 
   next();
 });
 
-app.get("/status", (req, res) => res.send("Working!"));
+app.get("/status", (req, res) =>
+  res.send({
+    status: "Working!",
+    credentials: res.locals.credentials
+  })
+);
 
 app.post("/login", async (req, res) => {
   const browser = res.locals.browser;
@@ -48,8 +57,8 @@ app.post("/login", async (req, res) => {
 
   try {
     const page = await browser.newPage();
-    const cookies = await login(page, username, password);
-    res.json({ message: "Login successfully!", cookies });
+    const credentials = await login(page, username, password);
+    res.json({ message: "Login successfully!", credentials });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
@@ -58,13 +67,13 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/:id/members/add", async (req, res) => {
-  const browser = res.locals.browser;
+  const { browser, credentials } = res.locals;
   const id = req.params.id;
-  const { members, cookies } = req.body;
+  const { member } = req.body;
 
   try {
-    const page = await getBrowserPage(browser, cookies);
-    const data = await add(page, id, members);
+    const page = await getBrowserPage(browser, credentials);
+    const data = await add(page, id, [member]);
 
     res.send({ data });
   } catch (error) {
@@ -75,13 +84,13 @@ app.post("/:id/members/add", async (req, res) => {
 });
 
 app.post("/:id/members/remove", async (req, res) => {
-  const browser = res.locals.browser;
+  const { browser, credentials } = res.locals;
   const id = req.params.id;
-  const { members, cookies } = req.body;
+  const { member } = req.body;
 
   try {
-    const page = await getBrowserPage(browser, cookies);
-    const data = await remove(page, id, members);
+    const page = await getBrowserPage(browser, credentials);
+    const data = await remove(page, id, [member]);
 
     res.send({ data });
   } catch (error) {
@@ -92,12 +101,12 @@ app.post("/:id/members/remove", async (req, res) => {
 });
 
 app.post("/:id/members/retrieve", async (req, res) => {
-  const browser = res.locals.browser;
+  const { browser, credentials } = res.locals;
   const id = req.params.id;
-  const { member, cookies } = req.body;
+  const { member } = req.body;
 
   try {
-    const page = await getBrowserPage(browser, cookies);
+    const page = await getBrowserPage(browser, credentials);
     const data = await retrieve(page, id, member);
 
     res.send({ data });
