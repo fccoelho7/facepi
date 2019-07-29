@@ -15,10 +15,29 @@ const getMemberName = async page =>
 const getMemberPhoto = async page =>
   await page.$eval(".photoContainer img", el => el.getAttribute("src"));
 
-const add = async (page, id, members) => {
+const getMemberProfile = async (page, member) => {
+  const { url, email } = member;
+  let id, name, photo, status;
+
+  try {
+    await page.goto(url, { waitUntil: "networkidle2" });
+
+    id = await getMemberId(page);
+    name = await getMemberName(page);
+    photo = await getMemberPhoto(page);
+
+    status = id && Status.MemberInvited;
+  } catch {
+    status = Status.MemberNotFound;
+  }
+
+  return { id, name, email, url, photo, status };
+};
+
+const inviteMembers = async (page, groupId, members) => {
   const fieldSelector = "div.uiStickyPlaceholderInput input";
 
-  await goToGroupPage(page, id, "members");
+  await goToGroupPage(page, groupId, "members");
 
   await page.click('div[data-testid="group_more_actions"] > a');
 
@@ -44,20 +63,19 @@ const add = async (page, id, members) => {
   await page.keyboard.press("Enter");
 
   await page.waitFor(1000);
+};
 
+const add = async (page, groupId, members) => {
   let response = [];
 
   for (const member of members) {
-    const { url, email } = member;
+    const memberProfile = await getMemberProfile(page, member);
 
-    await page.goto(url, { waitUntil: "networkidle2" });
+    if (memberProfile.id) {
+      await inviteMembers(page, groupId, [member]);
+    }
 
-    const id = await getMemberId(page);
-    const name = await getMemberName(page);
-    const photo = await getMemberPhoto(page);
-    const status = id ? Status.MemberInvited : Status.MemberNotFound;
-
-    response = [...response, { id, name, email, url, photo, status }];
+    response = [...response, memberProfile];
   }
 
   return response;
