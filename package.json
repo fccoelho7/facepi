@@ -16,7 +16,8 @@
   },
   "scripts": {
     "start": "node index.js",
-    "dev": "NODE_ENV=development nodemon index.js"
+    "dev": "NODE_ENV=development nodemon index.js",
+    "deploy": "gcloud beta functions deploy facepi --runtime nodejs8 --memory 1024MB --trigger-http --entry-point app"
   },
   "devDependencies": {
     "firebase-tools": "^7.1.1",

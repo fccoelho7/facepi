@@ -9,6 +9,7 @@ const { remove } = require("./services/groups/remove");
 const { retrieve } = require("./services/groups/retrieve");
 
 const app = express();
+const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use(logger("common"));
@@ -25,8 +26,7 @@ const getBrowserPage = async (browser, cookies) => {
 
 app.all("*", async (req, res, next) => {
   const browser = await puppeteer.launch({
-    args: ["--no-sandbox"],
-    headless: true
+    args: ["--no-sandbox"]
   });
 
   const context = browser.defaultBrowserContext();
@@ -39,6 +39,8 @@ app.all("*", async (req, res, next) => {
 
   next();
 });
+
+app.get("/status", (req, res) => res.send("Working!"));
 
 app.post("/login", async (req, res) => {
   const browser = res.locals.browser;
@@ -108,4 +110,6 @@ app.post("/:id/members/retrieve", async (req, res) => {
 
 app.use(errorHandler());
 
-app.listen(process.env.PORT || 5001);
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+module.exports = { app };
