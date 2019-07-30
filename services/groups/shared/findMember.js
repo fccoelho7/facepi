@@ -3,7 +3,7 @@ const findMember = async (page, member) => {
 
   // Clear some previously value
   await page.click(fieldSelector, { clickCount: 4 });
-  await page.keyboard.press("Backspace");
+  await page.keyboard.press('Backspace');
 
   await page.waitFor(1000);
 
@@ -13,7 +13,7 @@ const findMember = async (page, member) => {
 
   const foundMember = await page.$(`#search_${member.id}`);
 
-  return foundMember ? true : false;
+  return !!foundMember;
 };
 
 module.exports = { findMember };

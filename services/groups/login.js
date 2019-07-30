@@ -1,6 +1,6 @@
 const login = async (page, user, password) => {
-  await page.goto("https://www.facebook.com/login", {
-    waitUntil: "networkidle2"
+  await page.goto('https://www.facebook.com/login', {
+    waitUntil: 'networkidle2'
   });
 
   await page.type('input[name="email"]', user);
