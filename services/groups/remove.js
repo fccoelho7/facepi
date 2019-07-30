@@ -1,8 +1,11 @@
 const Status = require("./status");
 const { findMember } = require("./shared/findMember");
 const { goToGroupPage } = require("./shared/goToGroupPage");
+const { getMemberProfile } = require("./shared/getMemberProfile");
 
-const removeOnce = async (page, member) => {
+const removeMember = async (page, groupId, member) => {
+  await goToGroupPage(page, groupId, "members");
+
   const hasMember = await findMember(page, member);
 
   if (!hasMember) {
@@ -30,17 +33,17 @@ const removeOnce = async (page, member) => {
   return { ...member, status: Status.MemberRemoved };
 };
 
-const remove = async (page, id, memberList) => {
-  await goToGroupPage(page, id, "members");
-
+const remove = async (page, groupId, memberList) => {
   let response = [];
 
-  for (const member of memberList) {
-    const result = await removeOnce(page, member);
+  for (let member of memberList) {
+    member = await getMemberProfile(page, member);
+    const result = await removeMember(page, groupId, member);
+
     response = [...response, result];
   }
 
   return response;
 };
 
-module.exports = { remove, removeOnce };
+module.exports = { remove };

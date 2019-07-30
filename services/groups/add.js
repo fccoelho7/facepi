@@ -1,38 +1,5 @@
-const Status = require("./status");
 const { goToGroupPage } = require("./shared/goToGroupPage");
-
-const getMemberId = async page =>
-  await page.$eval("[data-referrerid]", el =>
-    el.getAttribute("data-referrerid")
-  );
-
-const getMemberName = async page =>
-  await page.$eval(
-    '[data-testid="profile_name_in_profile_page"] a',
-    el => el.text
-  );
-
-const getMemberPhoto = async page =>
-  await page.$eval(".photoContainer img", el => el.getAttribute("src"));
-
-const getMemberProfile = async (page, member) => {
-  const { url, email } = member;
-  let id, name, photo, status;
-
-  try {
-    await page.goto(url, { waitUntil: "networkidle2" });
-
-    id = await getMemberId(page);
-    name = await getMemberName(page);
-    photo = await getMemberPhoto(page);
-
-    status = id && Status.MemberInvited;
-  } catch {
-    status = Status.MemberNotFound;
-  }
-
-  return { id, name, email, url, photo, status };
-};
+const { getMemberProfile } = require("./shared/getMemberProfile");
 
 const inviteMembers = async (page, groupId, members) => {
   const fieldSelector = "div.uiStickyPlaceholderInput input";
