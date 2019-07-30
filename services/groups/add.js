@@ -13,6 +13,7 @@ const inviteMembers = async (page, groupId, members) => {
   await page.waitFor(1000);
 
   await page.keyboard.press('Space');
+  await page.keyboard.press('Space');
   await page.keyboard.press('Enter');
 
   await page.waitFor(2000);
@@ -46,7 +47,7 @@ const add = async (page, groupId, members) => {
     response = [...response, memberProfile];
   }
 
-  return response;
+  return response[0];
 };
 
 module.exports = { add };

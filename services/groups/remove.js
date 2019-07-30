@@ -45,7 +45,7 @@ const remove = async (page, groupId, memberList) => {
     response = [...response, result];
   }
 
-  return response;
+  return response[0];
 };
 
 module.exports = { remove };

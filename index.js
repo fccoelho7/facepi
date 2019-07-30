@@ -29,7 +29,8 @@ const getBrowserPage = async (browser, cookies) => {
 
 app.all('*', async (req, res, next) => {
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox']
+    args: ['--no-sandbox'],
+    headless: process.env.NODE_ENV !== 'development'
   });
 
   const context = browser.defaultBrowserContext();
@@ -50,7 +51,7 @@ app.get('/status', (req, res) =>
 );
 
 app.post('/login', async (req, res) => {
-  const browser = res.locals.browser;
+  const { browser } = res.locals;
   const { username, password } = req.body;
 
   try {
@@ -66,7 +67,7 @@ app.post('/login', async (req, res) => {
 
 app.post('/:id/members/add', async (req, res) => {
   const { browser, credentials } = res.locals;
-  const id = req.params.id;
+  const { id } = req.params;
   const { member } = req.body;
 
   try {
@@ -83,7 +84,7 @@ app.post('/:id/members/add', async (req, res) => {
 
 app.post('/:id/members/remove', async (req, res) => {
   const { browser, credentials } = res.locals;
-  const id = req.params.id;
+  const { id } = req.params;
   const { member } = req.body;
 
   try {
@@ -100,7 +101,7 @@ app.post('/:id/members/remove', async (req, res) => {
 
 app.post('/:id/members/retrieve', async (req, res) => {
   const { browser, credentials } = res.locals;
-  const id = req.params.id;
+  const { id } = req.params;
   const { member } = req.body;
 
   try {
