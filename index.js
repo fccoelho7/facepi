@@ -12,7 +12,6 @@ const { retrieve } = require('./services/groups/retrieve');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use(logger('common'));
@@ -119,6 +118,7 @@ app.post('/:id/members/retrieve', async (req, res) => {
 app.use(errorHandler());
 
 if (process.env.NODE_ENV === 'development') {
+  const PORT = process.env.PORT || 5001;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 

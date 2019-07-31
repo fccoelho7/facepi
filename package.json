@@ -18,7 +18,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
-    "deploy": "gcloud beta functions deploy facepi --env-vars-file .env.yaml --runtime nodejs10 --memory 1024MB --trigger-http --entry-point app"
+    "deploy": "gcloud beta functions deploy facepi --env-vars-file .env.yaml --runtime nodejs8 --memory 2048MB --trigger-http --entry-point app"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.2",
