@@ -11,7 +11,7 @@ const login = async (page, user, password) => {
 
   const cookies = await page.cookies();
 
-  return JSON.stringify(cookies);
+  return Buffer.from(JSON.stringify(cookies)).toString('base64');
 };
 
 module.exports = { login };

@@ -20,11 +20,13 @@ const getBrowserPage = async (browser, cookies) => {
   const page = await browser.newPage();
 
   if (cookies) {
-    await page.setCookie(...JSON.parse(cookies));
+    await page.setCookie(...cookies);
   }
 
   return page;
 };
+
+const fromBase64 = hash => JSON.parse(Buffer.from(hash, 'base64').toString('ascii'));
 
 app.all('*', async (req, res, next) => {
   const browser = await puppeteer.launch({
@@ -37,7 +39,7 @@ app.all('*', async (req, res, next) => {
   await context.overridePermissions('https://www.facebook.com/', ['notifications']);
 
   res.locals.browser = browser;
-  res.locals.credentials = process.env.CREDENTIALS;
+  res.locals.credentials = fromBase64(process.env.CREDENTIALS);
 
   next();
 });
