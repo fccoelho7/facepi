@@ -41,7 +41,7 @@ const add = async (page, groupId, members) => {
     const memberProfile = await getMemberProfile(page, member);
 
     if (memberProfile.id) {
-      await inviteMembers(page, groupId, [member]);
+      inviteMembers(page, groupId, [member]);
     }
 
     response = [...response, memberProfile];
