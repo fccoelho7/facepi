@@ -1,5 +1,5 @@
 const findMember = async (page, member) => {
-  const fieldSelector = 'input[placeholder="Encontre um membro"]';
+  const fieldSelector = 'input[placeholder="Find a member"]';
 
   // Clear some previously value
   await page.click(fieldSelector, { clickCount: 4 });
