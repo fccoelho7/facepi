@@ -1,50 +1,38 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-const { goToGroupPage } = require('./shared/goToGroupPage');
-const { getMemberProfile } = require('./shared/getMemberProfile');
+const { goToGroup } = require('./shared/go-to-group');
+const { getMemberProfile } = require('./shared/get-member-profile');
+const Status = require('./status');
 
-const inviteMembers = async (page, groupId, members) => {
-  const fieldSelector = 'div.uiStickyPlaceholderInput input';
+const approveMemberRequest = async (page, groupId, member) => {
+  const profile = await getMemberProfile(page, member);
 
-  await goToGroupPage(page, groupId, 'members');
-
-  await page.click('div[data-testid="group_more_actions"] > a');
-
-  await page.waitFor(1000);
-
-  await page.keyboard.press('Space');
-  await page.keyboard.press('Space');
-  await page.keyboard.press('Enter');
-
-  await page.waitFor(2000);
-
-  await page.focus(fieldSelector);
-
-  for (const member of members) {
-    await page.keyboard.type(member.email);
-    await page.waitFor(1000);
-    await page.keyboard.press('Enter');
-    await page.focus(fieldSelector);
-    await page.waitFor(1000);
+  if (!profile) {
+    return { status: Status.MemberNotFound };
   }
 
-  await page.keyboard.press('Escape');
-  await page.keyboard.press('Enter');
+  await goToGroup(page, groupId, 'requests');
 
-  await page.waitFor(1000);
+  let status = Status.MemberAdded;
+  const approveButtonSelector = `[data-testid="${profile.id}"] button[data-testid="approve_pending_member"]`;
+
+  try {
+    await page.type('[placeholder="Search by name"]', profile.name);
+    await page.waitForSelector(approveButtonSelector, { timeout: 3000 });
+    await page.click(approveButtonSelector);
+  } catch (error) {
+    status = Status.MemberNotRequested;
+  }
+
+  return { ...profile, status };
 };
 
 const add = async (page, groupId, members) => {
   let response = [];
 
   for (const member of members) {
-    const memberProfile = await getMemberProfile(page, member);
-
-    if (memberProfile.id) {
-      inviteMembers(page, groupId, [member]);
-    }
-
-    response = [...response, memberProfile];
+    const result = await approveMemberRequest(page, groupId, member);
+    response = [...response, result];
   }
 
   return response[0];

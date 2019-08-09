@@ -1,48 +1,49 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 const Status = require('./status');
-const { findMember } = require('./shared/findMember');
-const { goToGroupPage } = require('./shared/goToGroupPage');
-const { getMemberProfile } = require('./shared/getMemberProfile');
+const { findMember } = require('./shared/find-member');
+const { goToGroup } = require('./shared/go-to-group');
+const { getMemberProfile } = require('./shared/get-member-profile');
 
 const removeMember = async (page, groupId, member) => {
-  await goToGroupPage(page, groupId, 'members');
+  await goToGroup(page, groupId, 'members');
 
-  const hasMember = await findMember(page, member);
+  const isMemberInGroup = await findMember(page, member);
 
-  if (!hasMember) {
-    return { ...member, status: Status.MemberNotFound };
-  }
+  if (!isMemberInGroup) return null;
 
-  await page.keyboard.press('Tab');
-  await page.keyboard.press('Tab');
-  await page.keyboard.press('Tab');
-  await page.keyboard.press('Enter');
+  const $memberActionsBtn = `[data-testid="admin_action_menu_button-search-${member.id}"]`;
+  const $leaveGroupBtn = '[data-testid="leave_group"]';
+  const $confirmRemovalBtn = 'button.layerConfirm';
 
-  await page.waitFor(1000);
+  await page.click($memberActionsBtn);
 
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('Enter');
+  await page.waitForSelector($leaveGroupBtn);
 
-  await page.waitFor(5000);
+  await page.click($leaveGroupBtn);
 
-  await page.click('button.layerConfirm');
+  await page.waitForSelector($confirmRemovalBtn);
+
+  await page.click($confirmRemovalBtn);
 
   await page.waitFor(2000);
 
-  return { ...member, status: Status.MemberRemoved };
+  return true;
 };
 
 const remove = async (page, groupId, memberList) => {
   let response = [];
 
-  for (let member of memberList) {
-    member = await getMemberProfile(page, member);
-    const result = await removeMember(page, groupId, member);
+  for (const member of memberList) {
+    const profile = await getMemberProfile(page, member);
 
-    response = [...response, result];
+    if (!profile) {
+      response = [...response, { status: Status.MemberNotFound }];
+    }
+
+    await removeMember(page, groupId, profile);
+
+    response = [...response, { status: Status.MemberRemoved }];
   }
 
   return response[0];
