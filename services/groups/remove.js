@@ -10,7 +10,7 @@ const removeMember = async (page, groupId, member) => {
 
   const isMemberInGroup = await findMember(page, member);
 
-  if (!isMemberInGroup) return null;
+  if (!isMemberInGroup) return;
 
   const $memberActionsBtn = `[data-testid="admin_action_menu_button-search-${member.id}"]`;
   const $leaveGroupBtn = '[data-testid="leave_group"]';
@@ -27,8 +27,6 @@ const removeMember = async (page, groupId, member) => {
   await page.click($confirmRemovalBtn);
 
   await page.waitFor(2000);
-
-  return true;
 };
 
 const remove = async (page, groupId, memberList) => {
