@@ -89,12 +89,12 @@ app.post('/:id/members/add', async (req, res) => {
 
 app.post('/:id/members/remove', async (req, res) => {
   const { browser, credentials } = res.locals;
-  const { id } = req.params;
-  const { member } = req.body;
+  const { id: groupId } = req.params;
+  const { id: memberId } = req.body;
 
   try {
     const page = await getBrowserPage(browser, credentials);
-    const data = await remove(page, id, [member]);
+    const data = await remove(page, groupId, memberId);
 
     res.send({ data });
   } catch (error) {

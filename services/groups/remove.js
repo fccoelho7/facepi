@@ -26,11 +26,11 @@ const removeMember = async (page, groupId, member) => {
 
   await page.click($confirmRemovalBtn);
 
-  await page.waitFor(2000);
+  await page.waitForResponse(res => res.url().match(/ajax\/groups\/remove_member/));
 };
 
-const remove = async (page, groupId, member) => {
-  const profile = await getMemberProfile(page, member);
+const remove = async (page, groupId, memberId) => {
+  const profile = await getMemberProfile(page, { id: memberId });
 
   if (!profile) {
     return { status: Status.MemberNotFound };
