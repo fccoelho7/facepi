@@ -14,13 +14,15 @@ const approveMemberRequest = async (page, groupId, url) => {
   await goToGroup(page, groupId, 'requests');
 
   let status = Status.MemberAdded;
-  const approveButtonSelector = `[data-testid="${profile.id}"] button[data-testid="approve_pending_member"]`;
+  const $approveBtn = `[data-testid="${profile.id}"] button[data-testid="approve_pending_member"]`;
 
   try {
     await page.type('[placeholder="Search by name"]', profile.name);
-    await page.waitForSelector(approveButtonSelector, { timeout: 3000 });
-    await page.click(approveButtonSelector);
+    await page.waitForSelector($approveBtn);
+    await page.click($approveBtn);
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
     status = Status.MemberNotRequested;
   }
 
