@@ -29,22 +29,16 @@ const removeMember = async (page, groupId, member) => {
   await page.waitFor(2000);
 };
 
-const remove = async (page, groupId, memberList) => {
-  let response = [];
+const remove = async (page, groupId, member) => {
+  const profile = await getMemberProfile(page, member);
 
-  for (const member of memberList) {
-    const profile = await getMemberProfile(page, member);
-
-    if (!profile) {
-      response = [...response, { status: Status.MemberNotFound }];
-    }
-
-    await removeMember(page, groupId, profile);
-
-    response = [...response, { status: Status.MemberRemoved }];
+  if (!profile) {
+    return { status: Status.MemberNotFound };
   }
 
-  return response[0];
+  await removeMember(page, groupId, profile);
+
+  return { status: Status.MemberRemoved };
 };
 
 module.exports = { remove };

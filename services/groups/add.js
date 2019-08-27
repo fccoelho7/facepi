@@ -4,8 +4,8 @@ const { goToGroup } = require('./shared/go-to-group');
 const { getMemberProfile } = require('./shared/get-member-profile');
 const Status = require('./status');
 
-const approveMemberRequest = async (page, groupId, member) => {
-  const profile = await getMemberProfile(page, member);
+const approveMemberRequest = async (page, groupId, url) => {
+  const profile = await getMemberProfile(page, { url });
 
   if (!profile) {
     return { status: Status.MemberNotFound };
@@ -27,15 +27,6 @@ const approveMemberRequest = async (page, groupId, member) => {
   return { ...profile, status };
 };
 
-const add = async (page, groupId, members) => {
-  let response = [];
-
-  for (const member of members) {
-    const result = await approveMemberRequest(page, groupId, member);
-    response = [...response, result];
-  }
-
-  return response[0];
-};
+const add = (page, groupId, profileUrl) => approveMemberRequest(page, groupId, profileUrl);
 
 module.exports = { add };

@@ -60,6 +60,8 @@ app.post('/login', async (req, res) => {
     const credentials = await login(page, username, password);
     res.json({ message: 'Login successfully!', credentials });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
     res.status(400).send({ error: error.message });
   }
 
@@ -69,14 +71,16 @@ app.post('/login', async (req, res) => {
 app.post('/:id/members/add', async (req, res) => {
   const { browser, credentials } = res.locals;
   const { id } = req.params;
-  const { member } = req.body;
+  const { url } = req.body;
 
   try {
     const page = await getBrowserPage(browser, credentials);
-    const data = await add(page, id, [member]);
+    const data = await add(page, id, url);
 
     res.send({ data });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
     res.status(400).send({ error: error.message });
   }
 
@@ -94,6 +98,8 @@ app.post('/:id/members/remove', async (req, res) => {
 
     res.send({ data });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
     res.status(400).send({ error: error.message });
   }
 
@@ -111,6 +117,8 @@ app.post('/:id/members/retrieve', async (req, res) => {
 
     res.send({ data });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
     res.status(400).send({ error: error.message });
   }
 
@@ -121,6 +129,7 @@ app.use(errorHandler());
 
 if (process.env.NODE_ENV === 'development') {
   const PORT = process.env.PORT || 5002;
+  // eslint-disable-next-line no-console
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 

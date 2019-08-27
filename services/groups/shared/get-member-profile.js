@@ -8,15 +8,18 @@ const getMemberPhoto = async page =>
   page.$eval('.photoContainer img', el => el.getAttribute('src'));
 
 const getMemberProfile = async (page, member) => {
-  let { id, name, photo, url } = member;
-  url = id ? `https://facebook.com/${id}` : url;
+  if (!member.id && !member.url) {
+    throw Error('Member ID or URL is obligatory.');
+  }
+
+  const url = member.id ? `https://facebook.com/${member.id}` : member.url;
 
   try {
     await page.goto(url);
 
-    id = id || (await getMemberId(page));
-    name = await getMemberName(page);
-    photo = await getMemberPhoto(page);
+    const id = await getMemberId(page);
+    const name = await getMemberName(page);
+    const photo = await getMemberPhoto(page);
 
     return { id, name, photo, url };
   } catch (error) {
