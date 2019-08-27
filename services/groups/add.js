@@ -18,7 +18,7 @@ const approveMemberRequest = async (page, groupId, url) => {
 
   try {
     await page.type('[placeholder="Search by name"]', profile.name);
-    await page.waitForSelector($approveBtn);
+    await page.waitForResponse(res => res.url() === 'https://www.facebook.com/api/graphql/');
     await page.click($approveBtn);
   } catch (error) {
     // eslint-disable-next-line no-console
